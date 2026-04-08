@@ -2,18 +2,21 @@
 
 import { createContext, useContext } from "react";
 import type { BalanceReport, HistoryEntry } from "./types";
+import type { ParseResult } from "./parser";
 
 export interface AppState {
   report: BalanceReport | null;
+  parseResult: ParseResult | null;
   history: HistoryEntry[];
-  setReport: (r: BalanceReport) => void;
+  setParseResult: (r: ParseResult) => void;
   addHistory: (e: HistoryEntry) => void;
 }
 
 export const AppContext = createContext<AppState>({
   report: null,
+  parseResult: null,
   history: [],
-  setReport: () => {},
+  setParseResult: () => {},
   addHistory: () => {},
 });
 

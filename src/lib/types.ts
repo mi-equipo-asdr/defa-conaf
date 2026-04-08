@@ -69,3 +69,22 @@ export interface HistoryEntry {
   compromiso: number;
   pctAvance: number;
 }
+
+export interface ExportConfig {
+  // Filters
+  programas: string[];          // códigos de programa a incluir ("01","03",...), vacío = todos
+  tipo: "todos" | "bys" | "viatico";
+  oficina: string;              // "todas" | "regional" | "valdivia" | "ranco"
+  rangoAvance: [number, number]; // [min%, max%] — e.g. [0, 100]
+
+  // Sheets
+  includeResumen: boolean;
+  includeDetalle: boolean;
+  includeAlertas: boolean;
+  includeComparativo: boolean;  // comparativo entre programas
+
+  // Format
+  formatoMontos: "pesos" | "miles" | "millones";
+  incluirGraficos: boolean;     // data para gráficos (tabla auxiliar)
+  separarPorPrograma: boolean;  // una hoja por programa
+}

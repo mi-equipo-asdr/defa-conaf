@@ -2,21 +2,22 @@
 
 import { useState, useCallback, useRef } from "react";
 import { useRouter } from "next/navigation";
-import { Upload, FileSpreadsheet, CheckCircle, AlertCircle, Loader2 } from "lucide-react";
-import { parseSigfeFile, generateBalance } from "@/lib/parser";
+import { Upload, FileSpreadsheet, CheckCircle, AlertCircle, Loader2, Building2 } from "lucide-react";
+import { parseSigfeFile } from "@/lib/parser";
 import { useAppState } from "@/lib/store";
 import { cn } from "@/lib/utils";
 
-type Status = "idle" | "reading" | "parsing" | "generating" | "done" | "error";
+type Status = "idle" | "reading" | "parsing" | "done" | "error";
 
 export default function SubirPage() {
-  const { setReport, addHistory } = useAppState();
+  const { setParseResult, addHistory } = useAppState();
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
   const [status, setStatus] = useState<Status>("idle");
   const [dragOver, setDragOver] = useState(false);
   const [fileName, setFileName] = useState("");
-  const [stats, setStats] = useState({ rows: 0, programas: 0, items: 0 });
+  const [stats, setStats] = useState({ oficinas: 0, programas: 0, items: 0, alertas: 0 });
+  const [oficinasNames, setOficinasNames] = useState<string[]>([]);
   const [error, setError] = useState("");
 
   const processFile = useCallback(
@@ -29,29 +30,27 @@ export default function SubirPage() {
         const buffer = await file.arrayBuffer();
 
         setStatus("parsing");
-        await new Promise((r) => setTimeout(r, 500)); // visual feedback
-        const rows = parseSigfeFile(buffer);
+        await new Promise((r) => setTimeout(r, 400));
+        const result = parseSigfeFile(buffer);
 
-        if (rows.length === 0) {
-          throw new Error("No se encontraron datos válidos en el archivo");
+        if (result.oficinas.length === 0) {
+          throw new Error("No se encontraron hojas con datos de balance válidos");
         }
 
-        setStatus("generating");
-        await new Promise((r) => setTimeout(r, 400));
-        const report = generateBalance(rows);
-
         setStats({
-          rows: report.totalRows,
-          programas: report.programas.length,
-          items: report.totalItems,
+          oficinas: result.oficinas.length,
+          programas: result.consolidado.programas.length,
+          items: result.consolidado.totalItems,
+          alertas: result.consolidado.alertas.length,
         });
+        setOficinasNames(result.oficinas.map((o) => o.nombre));
 
-        setReport(report);
+        setParseResult(result);
         addHistory({
-          mes: report.periodo,
-          presupuesto: report.totalPresupuesto,
-          compromiso: report.totalCompromiso,
-          pctAvance: report.pctAvanceGlobal,
+          mes: result.consolidado.periodo || new Date().toLocaleDateString("es-CL"),
+          presupuesto: result.consolidado.totalPresupuesto,
+          compromiso: result.consolidado.totalCompromiso,
+          pctAvance: result.consolidado.pctAvanceGlobal,
         });
 
         setStatus("done");
@@ -60,7 +59,7 @@ export default function SubirPage() {
         setStatus("error");
       }
     },
-    [setReport, addHistory]
+    [setParseResult, addHistory]
   );
 
   const handleDrop = useCallback(
@@ -82,20 +81,19 @@ export default function SubirPage() {
   );
 
   const steps = [
-    { key: "reading", label: "Leyendo archivo" },
-    { key: "parsing", label: "Extrayendo datos SIGFE" },
-    { key: "generating", label: "Generando balance" },
+    { key: "reading", label: "Leyendo archivo Excel" },
+    { key: "parsing", label: "Parseando hojas y programas" },
   ];
 
-  const statusOrder = ["reading", "parsing", "generating", "done"];
+  const statusOrder = ["reading", "parsing", "done"];
   const currentIdx = statusOrder.indexOf(status);
 
   return (
     <div className="p-8 max-w-2xl mx-auto space-y-8">
       <div>
-        <h1 className="text-2xl font-bold text-gray-900">Subir Archivo SIGFE</h1>
+        <h1 className="text-2xl font-bold text-gray-900">Subir Balance</h1>
         <p className="text-gray-500 mt-1">
-          Sube el .xls de Disponibilidad de Requerimientos descargado de SIGFE
+          Sube el archivo .xls de Balance Presupuestario Consolidado
         </p>
       </div>
 
@@ -130,7 +128,9 @@ export default function SubirPage() {
             <p className="text-gray-600 font-medium">
               Arrastra el archivo .xls aquí
             </p>
-            <p className="text-gray-400 text-sm mt-1">o haz clic para seleccionar</p>
+            <p className="text-gray-400 text-sm mt-1">
+              Balance Presup Consol al XX-XX-XXXX.xls
+            </p>
           </>
         ) : (
           <>
@@ -143,7 +143,7 @@ export default function SubirPage() {
       {/* Processing steps */}
       {status !== "idle" && (
         <div className="bg-white rounded-xl border p-6 shadow-sm space-y-4">
-          {steps.map((step, i) => {
+          {steps.map((step) => {
             const stepIdx = statusOrder.indexOf(step.key);
             const isDone = currentIdx > stepIdx || status === "done";
             const isActive = currentIdx === stepIdx && status !== "done" && status !== "error";
@@ -177,11 +177,11 @@ export default function SubirPage() {
           )}
 
           {status === "done" && (
-            <div className="pt-4 border-t space-y-3">
-              <div className="grid grid-cols-3 gap-4 text-center">
+            <div className="pt-4 border-t space-y-4">
+              <div className="grid grid-cols-4 gap-4 text-center">
                 <div>
-                  <p className="text-2xl font-bold text-emerald-600">{stats.rows}</p>
-                  <p className="text-xs text-gray-500">Líneas procesadas</p>
+                  <p className="text-2xl font-bold text-emerald-600">{stats.oficinas}</p>
+                  <p className="text-xs text-gray-500">Oficinas</p>
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-emerald-600">{stats.programas}</p>
@@ -189,9 +189,30 @@ export default function SubirPage() {
                 </div>
                 <div>
                   <p className="text-2xl font-bold text-emerald-600">{stats.items}</p>
-                  <p className="text-xs text-gray-500">Ítems agrupados</p>
+                  <p className="text-xs text-gray-500">Ítems</p>
+                </div>
+                <div>
+                  <p className="text-2xl font-bold text-amber-600">{stats.alertas}</p>
+                  <p className="text-xs text-gray-500">Alertas</p>
                 </div>
               </div>
+
+              {/* Oficinas detected */}
+              <div className="bg-gray-50 rounded-lg p-3">
+                <p className="text-xs font-semibold text-gray-500 mb-2">Oficinas detectadas:</p>
+                <div className="flex flex-wrap gap-2">
+                  {oficinasNames.map((name) => (
+                    <span
+                      key={name}
+                      className="flex items-center gap-1.5 px-2.5 py-1 bg-white rounded-md border text-xs text-gray-700"
+                    >
+                      <Building2 className="w-3 h-3 text-emerald-500" />
+                      {name}
+                    </span>
+                  ))}
+                </div>
+              </div>
+
               <button
                 onClick={() => router.push("/balance")}
                 className="w-full bg-emerald-600 text-white py-3 rounded-lg font-medium hover:bg-emerald-700 transition-colors"
