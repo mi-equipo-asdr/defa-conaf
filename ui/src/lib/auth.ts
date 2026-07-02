@@ -12,26 +12,14 @@ export interface AppProfile {
 const SESSION_KEY = 'conaf-defa-profile';
 
 export async function loginWithCode(codigo: string): Promise<AppProfile | null> {
-  const { data, error } = await (supabase as any)
-    .from('app_profiles')
-    .select('id, nombre, cargo, iniciales, rol, color')
-    .eq('codigo', codigo)
-    .eq('activo', true)
-    .single();
+  // RPC SECURITY DEFINER: valida el código, actualiza ultimo_acceso y registra
+  // el login. app_profiles ya no es legible con la anon key.
+  const { data, error } = await (supabase as any).rpc('login_with_code', { p_codigo: codigo });
 
-  if (error || !data) return null;
+  const row = Array.isArray(data) ? data[0] : data;
+  if (error || !row) return null;
 
-  // Update last access
-  await (supabase as any).from('app_profiles').update({ ultimo_acceso: new Date().toISOString() }).eq('id', data.id);
-
-  // Log access
-  await (supabase as any).from('access_log').insert({
-    profile_id: data.id,
-    accion: 'login',
-    detalle: `${data.nombre} ingresó al sistema`,
-  });
-
-  const profile = data as AppProfile;
+  const profile = row as AppProfile;
   sessionStorage.setItem(SESSION_KEY, JSON.stringify(profile));
   return profile;
 }
