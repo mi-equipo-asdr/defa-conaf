@@ -5,7 +5,9 @@ import { ExportModal } from './ExportModal';
 import { ItemDetailModal } from './ItemDetailModal';
 import type { BalanceReport, ProgramaSummary, BalanceItem } from '@/lib/types';
 import type { ParseResult } from '@/lib/parser';
-import emptyState from '@/assets/empty-state.png';
+import emptyStateAsset from '@/assets/empty-state.png';
+
+const emptyState = emptyStateAsset.src;
 
 function formatCLP(v: number): string {
   return v < 0 ? `-$${Math.abs(v).toLocaleString('es-CL')}` : `$${v.toLocaleString('es-CL')}`;

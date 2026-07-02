@@ -4,12 +4,19 @@ import {
   X,
   Zap,
 } from 'lucide-react';
-import logo3d from '@/assets/conaf-logo-3d.png';
-import sidebarPattern from '@/assets/sidebar-pattern.jpg';
-import iconDashboard from '@/assets/icon-dashboard-3d.png';
-import iconUpload from '@/assets/icon-upload-3d.png';
-import iconBalance from '@/assets/icon-balance-3d.png';
-import iconHistory from '@/assets/icon-history-3d.png';
+import logo3dAsset from '@/assets/conaf-logo-3d.png';
+import sidebarPatternAsset from '@/assets/sidebar-pattern.jpg';
+import iconDashboardAsset from '@/assets/icon-dashboard-3d.png';
+import iconUploadAsset from '@/assets/icon-upload-3d.png';
+import iconBalanceAsset from '@/assets/icon-balance-3d.png';
+import iconHistoryAsset from '@/assets/icon-history-3d.png';
+
+const logo3d = logo3dAsset.src;
+const sidebarPattern = sidebarPatternAsset.src;
+const iconDashboard = iconDashboardAsset.src;
+const iconUpload = iconUploadAsset.src;
+const iconBalance = iconBalanceAsset.src;
+const iconHistory = iconHistoryAsset.src;
 import type { AppProfile } from '@/lib/auth';
 
 interface SidebarProps {

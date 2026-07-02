@@ -3,7 +3,9 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { FileUp, CheckCircle, UploadCloud, AlertCircle, Loader2, Building2, Sparkles, FileSpreadsheet, ArrowRight } from 'lucide-react';
 import { parseSigfeFile, type ParseResult } from '@/lib/parser';
 import { checkDuplicate, type DuplicateCheck } from '@/lib/db';
-import emptyState from '@/assets/empty-state.png';
+import emptyStateAsset from '@/assets/empty-state.png';
+
+const emptyState = emptyStateAsset.src;
 
 interface UploadViewProps {
   onNavigateBalance: () => void;

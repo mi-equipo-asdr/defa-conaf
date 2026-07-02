@@ -2,10 +2,10 @@
   "version": "0.0.1",
   "configurations": [
     {
-      "name": "defa-conaf",
-      "runtimeExecutable": "npm",
-      "runtimeArgs": ["run", "dev"],
-      "port": 3000
+      "name": "defa-conaf-ui",
+      "runtimeExecutable": "/Users/amparodonoso/.nvm/versions/node/v22.14.0/bin/npm",
+      "runtimeArgs": ["--prefix", "ui", "run", "dev"],
+      "port": 8080
     }
   ]
 }

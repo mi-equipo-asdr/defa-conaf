@@ -7,7 +7,7 @@ Monorepo con dos paquetes:
 ```
 defa-conaf/
 ├── api/              Parser SIGFE (Next.js)
-├── ui/               Interfaz visual (Vite + React + Shadcn + Supabase)
+├── ui/               Interfaz visual (Next.js + React + Shadcn + Supabase)
 ├── blcemensual/      Datos CONAF reales · gitignored
 └── README.md
 ```
@@ -24,12 +24,12 @@ npm run dev   # http://localhost:3000
 
 ## `/ui` · interfaz visual
 
-Vite + React + Shadcn UI + Supabase. UI de exploración y exportación de balances.
+Next.js 16 + React 19 + Shadcn UI + Supabase. UI de exploración y exportación de balances (SPA client-only montada en un catch-all del App Router).
 
 ```bash
 cd ui
-bun install
-bun run dev   # http://localhost:5173
+npm install
+npm run dev   # http://localhost:8080
 ```
 
 Requiere `ui/.env` con credenciales Supabase (ver `ui/.env.example` si existe, o configurar manualmente).
@@ -38,19 +38,19 @@ Requiere `ui/.env` con credenciales Supabase (ver `ui/.env.example` si existe, o
 
 Carpeta con XLS, DOCX y previews del Balance Presupuestario. **No va al repo** (gitignored) por contener datos institucionales sensibles.
 
-Para correr el parser con datos reales, descargá los XLS desde SIGFE y colocálos acá.
+Para correr el parser con datos reales, descarga los XLS desde SIGFE y colócalos acá.
 
 ## Stack
 
-- **Backend / parser**: Next.js 15, TypeScript
-- **Frontend / UI**: Vite, React, Shadcn UI, Tailwind, Supabase
+- **Backend / parser**: Next.js, TypeScript
+- **Frontend / UI**: Next.js 16, React 19, Shadcn UI, Tailwind, Supabase
 - **Testing UI**: Playwright + Vitest
 - **Lenguaje**: TypeScript en todo
 
 ## Despliegue
 
 - `/api` se despliega como Next.js app (Vercel o Cloudflare).
-- `/ui` se despliega como SPA estática (Vercel, Netlify o Cloudflare Pages).
+- `/ui` se despliega como export estático de Next.js (`next build` genera `out/`); en Vercel u otro hosting estático necesita fallback SPA para rutas client-side.
 - La data nunca sale del entorno local. SIGFE no expone API pública, se trabaja con descargas manuales.
 
 ## Autora

@@ -5,7 +5,9 @@ import {
   ResponsiveContainer, CartesianGrid, Legend,
 } from 'recharts';
 import type { HistoryEntry } from '@/lib/types';
-import emptyState from '@/assets/empty-state.png';
+import emptyStateAsset from '@/assets/empty-state.png';
+
+const emptyState = emptyStateAsset.src;
 
 function fmtShort(v: number) {
   if (Math.abs(v) >= 1e9) return `$${(v / 1e9).toFixed(1)}B`;

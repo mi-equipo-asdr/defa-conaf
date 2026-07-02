@@ -2,8 +2,11 @@ import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Lock, AlertCircle, ArrowRight, Shield, Eye, Edit3 } from 'lucide-react';
 import { loginWithCode, type AppProfile } from '@/lib/auth';
-import loginBg from '@/assets/login-bg.jpg';
-import logo3d from '@/assets/conaf-logo-3d.png';
+import loginBgAsset from '@/assets/login-bg.jpg';
+import logo3dAsset from '@/assets/conaf-logo-3d.png';
+
+const loginBg = loginBgAsset.src;
+const logo3d = logo3dAsset.src;
 
 interface Props {
   onLogin: (profile: AppProfile) => void;

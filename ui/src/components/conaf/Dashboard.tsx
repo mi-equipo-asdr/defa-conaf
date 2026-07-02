@@ -8,8 +8,11 @@ import {
 import { useAnimatedCounter } from '@/hooks/useAnimatedCounter';
 import type { BalanceReport } from '@/lib/types';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Cell } from 'recharts';
-import dashboardHero from '@/assets/dashboard-hero.png';
-import emptyState from '@/assets/empty-state.png';
+import dashboardHeroAsset from '@/assets/dashboard-hero.png';
+import emptyStateAsset from '@/assets/empty-state.png';
+
+const dashboardHero = dashboardHeroAsset.src;
+const emptyState = emptyStateAsset.src;
 
 function Counter({ value, delay = 0 }: { value: number; delay?: number }) {
   const n = useAnimatedCounter(value, 1400, delay);
