@@ -19,7 +19,7 @@ defa-conaf/
 |---|---|
 | GitHub | `mi-equipo-asdr/defa-conaf` (org personal · NO VDRC) |
 | Supabase (ui) | project ref `iikkpvvfnbcztcvsjvbz` (`CONAF - DEFA`) |
-| Hosting | aún no deployado (futuro: Vercel personal) |
+| Hosting | `defa-conaf.vercel.app` · Vercel team `asdr` (cuenta personal), auto-deploy desde main, export estático (`ui/vercel.json` → `outputDirectory: out`) |
 | CLI Supabase | `supabase` (default, cuenta personal) |
 
 ## Vínculo con otros proyectos
