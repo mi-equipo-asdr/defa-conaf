@@ -19,7 +19,7 @@ import type { ParseResult } from '@/lib/parser';
 import { saveBalance, loadBalanceList, loadBalance, loadHistory } from '@/lib/db';
 import { BalanceManager } from '@/components/conaf/BalanceManager';
 import { LoginScreen } from '@/components/conaf/LoginScreen';
-import { getStoredProfile, logout, canUpload, type AppProfile } from '@/lib/auth';
+import { getCurrentProfile, onAuthChange, logout, canUpload, type AppProfile } from '@/lib/auth';
 import { toast } from 'sonner';
 
 const viewMeta: Record<string, { title: string; subtitle: string }> = {
@@ -41,7 +41,8 @@ const pageVariants = {
 };
 
 const Index = () => {
-  const [profile, setProfile] = useState<AppProfile | null>(getStoredProfile);
+  const [profile, setProfile] = useState<AppProfile | null>(null);
+  const [authReady, setAuthReady] = useState(false);
   const [activeView, setActiveView] = useState('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [loading, setLoading] = useState(true);
@@ -57,6 +58,25 @@ const Index = () => {
   const isMobile = useIsMobile(1024);
   const view = viewMeta[activeView];
 
+  // Bootstrap: restaura la sesión de Supabase Auth al montar
+  useEffect(() => {
+    let active = true;
+    getCurrentProfile().then((p) => {
+      if (active) {
+        setProfile(p);
+        setAuthReady(true);
+      }
+    });
+    const { data: sub } = onAuthChange((p) => {
+      // Reacciona a cierres de sesión / expiración desde otras pestañas
+      if (!p) setProfile(null);
+    });
+    return () => {
+      active = false;
+      sub.subscription.unsubscribe();
+    };
+  }, []);
+
   // Global Cmd+K / Ctrl+K shortcut for command palette
   useEffect(() => {
     const handler = (e: KeyboardEvent) => {
@@ -69,8 +89,8 @@ const Index = () => {
     return () => window.removeEventListener('keydown', handler);
   }, []);
 
-  const handleLogout = useCallback(() => {
-    logout();
+  const handleLogout = useCallback(async () => {
+    await logout();
     setProfile(null);
   }, []);
 
@@ -168,6 +188,14 @@ const Index = () => {
     oficinas,
     consolidado: report!,
   } as ParseResult : null);
+
+  if (!authReady) {
+    return (
+      <div className="flex h-screen items-center justify-center bg-background">
+        <div className="w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+      </div>
+    );
+  }
 
   if (!profile) {
     return <LoginScreen onLogin={(p) => setProfile(p)} />;

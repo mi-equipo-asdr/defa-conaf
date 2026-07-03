@@ -9,33 +9,53 @@ export interface AppProfile {
   color: string;
 }
 
-const SESSION_KEY = 'conaf-defa-profile';
+async function loadProfile(userId: string): Promise<AppProfile | null> {
+  const { data, error } = await (supabase as any)
+    .from('app_profiles')
+    .select('id, nombre, cargo, iniciales, rol, color')
+    .eq('user_id', userId)
+    .eq('activo', true)
+    .single();
+  if (error || !data) return null;
 
-export async function loginWithCode(codigo: string): Promise<AppProfile | null> {
-  // RPC SECURITY DEFINER: valida el código, actualiza ultimo_acceso y registra
-  // el login. app_profiles ya no es legible con la anon key.
-  const { data, error } = await (supabase as any).rpc('login_with_code', { p_codigo: codigo });
+  // Registrar acceso (best-effort, no bloquea el login)
+  (supabase as any).from('app_profiles').update({ ultimo_acceso: new Date().toISOString() }).eq('id', data.id).then(() => {});
+  (supabase as any).from('access_log').insert({ profile_id: data.id, accion: 'login', detalle: `${data.nombre} ingresó al sistema` }).then(() => {});
 
-  const row = Array.isArray(data) ? data[0] : data;
-  if (error || !row) return null;
-
-  const profile = row as AppProfile;
-  sessionStorage.setItem(SESSION_KEY, JSON.stringify(profile));
-  return profile;
+  return data as AppProfile;
 }
 
-export function getStoredProfile(): AppProfile | null {
-  try {
-    const raw = sessionStorage.getItem(SESSION_KEY);
-    if (!raw) return null;
-    return JSON.parse(raw) as AppProfile;
-  } catch {
-    return null;
+export async function signIn(email: string, password: string): Promise<{ profile: AppProfile | null; error: string | null }> {
+  const { data, error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
+  if (error || !data.user) {
+    return { profile: null, error: 'Credenciales incorrectas' };
   }
+  const profile = await loadProfile(data.user.id);
+  if (!profile) {
+    await supabase.auth.signOut();
+    return { profile: null, error: 'Tu cuenta no tiene un perfil asignado. Contacta al administrador.' };
+  }
+  return { profile, error: null };
 }
 
-export function logout(): void {
-  sessionStorage.removeItem(SESSION_KEY);
+export async function getCurrentProfile(): Promise<AppProfile | null> {
+  const { data } = await supabase.auth.getSession();
+  if (!data.session?.user) return null;
+  return loadProfile(data.session.user.id);
+}
+
+export function onAuthChange(cb: (profile: AppProfile | null) => void) {
+  return supabase.auth.onAuthStateChange(async (_event, session) => {
+    if (!session?.user) {
+      cb(null);
+      return;
+    }
+    cb(await loadProfile(session.user.id));
+  });
+}
+
+export async function logout(): Promise<void> {
+  await supabase.auth.signOut();
 }
 
 export function canUpload(rol: string): boolean {
