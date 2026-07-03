@@ -34,6 +34,7 @@ export function CommandPalette({ open, onClose, onNavigate, onLogout, report }: 
   const commands = useMemo<CommandItem[]>(() => {
     const navCommands: CommandItem[] = [
       { id: 'nav-dashboard', label: 'Ir a Resumen', desc: 'Dashboard principal', category: 'Navegación', icon: LayoutDashboard, action: () => onNavigate('dashboard'), keywords: ['dashboard', 'inicio', 'home'] },
+      { id: 'nav-informe', label: 'Ir a Informe Ejecutivo', desc: 'Reporte narrado del período', category: 'Navegación', icon: FileText, action: () => onNavigate('informe'), keywords: ['informe', 'reporte', 'pdf', 'ejecutivo', 'narrativa'] },
       { id: 'nav-upload', label: 'Ir a Procesador', desc: 'Subir nuevo archivo SIGFE', category: 'Navegación', icon: Upload, action: () => onNavigate('upload'), keywords: ['subir', 'sigfe', 'procesador'] },
       { id: 'nav-balance', label: 'Ir a Balance', desc: 'Tabla de balance mensual', category: 'Navegación', icon: FileSpreadsheet, action: () => onNavigate('balance'), keywords: ['tabla', 'detalle'] },
       { id: 'nav-history', label: 'Ir a Histórico', desc: 'Evolución mes a mes', category: 'Navegación', icon: History, action: () => onNavigate('history'), keywords: ['historial', 'tendencia'] },

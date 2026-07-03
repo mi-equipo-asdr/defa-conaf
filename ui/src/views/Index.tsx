@@ -5,6 +5,7 @@ import { Dashboard } from '@/components/conaf/Dashboard';
 import { MultiUploadView } from '@/components/conaf/MultiUploadView';
 import { BalanceTable } from '@/components/conaf/BalanceTable';
 import { HistoricoView } from '@/components/conaf/HistoricoView';
+import { InformeEjecutivo } from '@/components/conaf/InformeEjecutivo';
 import { SettingsPanel } from '@/components/conaf/SettingsPanel';
 import { NotesPanel } from '@/components/conaf/NotesPanel';
 import { AnalyticsPanel } from '@/components/conaf/AnalyticsPanel';
@@ -23,6 +24,7 @@ import { toast } from 'sonner';
 
 const viewMeta: Record<string, { title: string; subtitle: string }> = {
   dashboard: { title: 'Resumen Ejecutivo', subtitle: 'Vista consolidada de la gestión presupuestaria regional' },
+  informe: { title: 'Informe Ejecutivo', subtitle: 'Reporte narrado del período, listo para presentar o exportar' },
   upload: { title: 'Procesador SIGFE', subtitle: 'Importa y consolida datos automáticamente' },
   balance: { title: 'Balance Mensual', subtitle: 'Desglose detallado por programa, oficina y subtítulo' },
   history: { title: 'Análisis Histórico', subtitle: 'Tendencias de ejecución y proyecciones' },
@@ -334,6 +336,7 @@ const Index = () => {
                     )}
                   </div>
                 )}
+                {activeView === 'informe' && <InformeEjecutivo report={report} history={history} />}
                 {activeView === 'history' && <HistoricoView history={history} />}
                 {activeView === 'analytics' && <AnalyticsPanel report={report} history={history} />}
                 {activeView === 'compare' && <ComparisonView />}

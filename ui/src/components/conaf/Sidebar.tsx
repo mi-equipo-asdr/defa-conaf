@@ -29,6 +29,7 @@ interface SidebarProps {
 
 const navItems = [
   { id: 'dashboard', label: 'Resumen', desc: 'Vista general', icon3d: iconDashboard },
+  { id: 'informe', label: 'Informe', desc: 'Reporte ejecutivo', icon3d: iconBalance },
   { id: 'upload', label: 'Procesador', desc: 'Importar SIGFE', icon3d: iconUpload },
   { id: 'balance', label: 'Balance', desc: 'Detalle mensual', icon3d: iconBalance },
   { id: 'history', label: 'Histórico', desc: 'Tendencias', icon3d: iconHistory },
